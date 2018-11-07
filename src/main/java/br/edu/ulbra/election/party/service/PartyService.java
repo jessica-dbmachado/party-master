@@ -101,8 +101,12 @@ public class PartyService {
         if (StringUtils.isBlank(partyInput.getName())){
             throw new GenericOutputException("Invalid name");
         }
+        
+        if (partyInput.getName().length()<5){
+            throw new GenericOutputException("Invalid name, must have more than 5 letters");
+        }
 		
-	     if (partyInput.getNumber()==null){
+	     if (partyInput.getNumber()==null || partyInput.getNumber().toString().length()>2){
             throw new GenericOutputException("Invalid number");
         }
    
