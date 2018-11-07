@@ -52,9 +52,9 @@ public class PartyService {
             throw new GenericOutputException(MESSAGE_INVALID_ID);
         }
 
-        Party party = partyRepository.findById(parttyId).orElse(null);
+        Party party = partyRepository.findById(partyId).orElse(null);
         if (party == null){
-            throw new GenericOutputException(MESSAGE_VOTER_NOT_FOUND);
+            throw new GenericOutputException(MESSAGE_PARTY_NOT_FOUND);
         }
 
         return modelMapper.map(party, PartyOutput.class);
@@ -102,7 +102,7 @@ public class PartyService {
             throw new GenericOutputException("Invalid name");
         }
 		
-	     if (StringUtils.isBlank(partyInput.getNumber())){
+	     if (partyInput.getNumber()==null){
             throw new GenericOutputException("Invalid number");
         }
    
