@@ -107,7 +107,7 @@ public class PartyService {
         }
 		
 	     if (partyInput.getNumber()==null || partyInput.getNumber().toString().length()>2){
-            throw new GenericOutputException("Invalid number");
+            throw new GenericOutputException("Invalid number, has to have only 2 digits");
         }
    
     }
