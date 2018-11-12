@@ -1,21 +1,24 @@
 package br.edu.ulbra.election.party.model;
 
+import br.edu.ulbra.election.party.output.v1.PartyOutput;
+import org.modelmapper.ModelMapper;
+
 import javax.persistence.*;
 
 @Entity
 public class Party {
-//string code // string name // intger number
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false, unique = true)
     private String code;
 
     @Column(nullable = false)
     private String name;
 
-    @Column(unique=true,nullable = false)
+    @Column(nullable = false, unique = true)
     private Integer number;
 
     public Long getId() {
@@ -48,5 +51,10 @@ public class Party {
 
     public void setNumber(Integer number) {
         this.number = number;
+    }
+
+    public static PartyOutput toPartyOutput(Party party) {
+        ModelMapper modelMapper = new ModelMapper();
+        return modelMapper.map(party, PartyOutput.class);
     }
 }
