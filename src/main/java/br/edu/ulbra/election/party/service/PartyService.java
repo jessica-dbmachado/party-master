@@ -85,6 +85,7 @@ public class PartyService {
         }
 
         Party party = partyRepository.findById(partyId).orElse(null);
+        
         if (party == null){
             throw new GenericOutputException(MESSAGE_PARTY_NOT_FOUND);
         }
@@ -95,6 +96,10 @@ public class PartyService {
     }
 
     private void validateInput(PartyInput partyInput, boolean isUpdate){
+    	//procura numero do input party dentro do repositorio  e armazena no numberparty para comparar dps // o mesmo para code party
+	     Integer numberParty = partyRepository.findByNumber(partyInput.getNumber()).orElse(null);
+	     String codeParty = partyRepository.findByCode(partyInput.getCode()).orElse(null);
+	     
         if (StringUtils.isBlank(partyInput.getCode())){
             throw new GenericOutputException("Invalid code");
         }
@@ -109,6 +114,17 @@ public class PartyService {
 	     if (partyInput.getNumber()==null || partyInput.getNumber().toString().length()>2){
             throw new GenericOutputException("Invalid number, has to have only 2 digits");
         }
+	     
+	     if (numberParty != null)
+	     {
+	    	 throw new GenericOutputException("Number already registered");
+	     }
+	     
+	     if (codeParty != null)
+	     {
+	    	 throw new GenericOutputException("Code already registered");
+	     }
+	 
    
     }
 
