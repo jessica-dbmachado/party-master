@@ -33,3 +33,6 @@ info:
     name: Party
     creator-name: Tales Bitelo Viegas
     creator-email: tales.viegas@ulbra.br
+
+ url:
+ candidate-service: 'http://localhost:8085'
