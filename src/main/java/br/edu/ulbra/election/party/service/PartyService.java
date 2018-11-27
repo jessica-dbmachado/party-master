@@ -4,11 +4,11 @@ import br.edu.ulbra.election.party.client.CandidateClientService;
 import br.edu.ulbra.election.party.exception.GenericOutputException;
 import br.edu.ulbra.election.party.input.v1.PartyInput;
 import br.edu.ulbra.election.party.model.Party;
+import br.edu.ulbra.election.party.output.v1.CandidateOutput;
 import br.edu.ulbra.election.party.output.v1.GenericOutput;
 import br.edu.ulbra.election.party.output.v1.PartyOutput;
 import br.edu.ulbra.election.party.repository.PartyRepository;
 import feign.FeignException;
-
 import org.apache.commons.lang.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,15 +22,15 @@ public class PartyService {
 
     private final PartyRepository partyRepository;
 
+    private final CandidateClientService candidateClientService;
+
     private final ModelMapper modelMapper;
 
     private static final String MESSAGE_INVALID_ID = "Invalid id";
     private static final String MESSAGE_PARTY_NOT_FOUND = "Party not found";
-    
-    private final CandidateClientService candidateClientService;
-    
+
     @Autowired
-    public PartyService(PartyRepository partyRepository, ModelMapper modelMapper,CandidateClientService candidateClientService){
+    public PartyService(PartyRepository partyRepository, ModelMapper modelMapper, CandidateClientService candidateClientService){
         this.partyRepository = partyRepository;
         this.modelMapper = modelMapper;
         this.candidateClientService = candidateClientService;
@@ -74,6 +74,8 @@ public class PartyService {
             throw new GenericOutputException(MESSAGE_PARTY_NOT_FOUND);
         }
 
+        validateIntegrity(partyId);
+
         party.setCode(partyInput.getCode());
         party.setName(partyInput.getName());
         party.setNumber(partyInput.getNumber());
@@ -90,19 +92,8 @@ public class PartyService {
         if (party == null){
             throw new GenericOutputException(MESSAGE_PARTY_NOT_FOUND);
         }
-        
-        try {
-        	
-            candidateClientService.getById(party.getId());
-            if (candidateClientService == null)
-            {
-            	throw new GenericOutputException("CANT DELETE, THERE ARE CANDIDATES ASSOCIATED WITH THIS PARTY");
-            }
-             } catch (FeignException e){
-                 if (e.status() == 500) {
-                     throw new GenericOutputException("CANT DELETE, THERE ARE CANDIDATES ASSOCIATED WITH THIS PARTY");
-                 }
-             	}
+
+        validateIntegrity(partyId);
 
         partyRepository.delete(party);
 
@@ -117,6 +108,17 @@ public class PartyService {
         party = partyRepository.findFirstByNumber(partyInput.getNumber());
         if (party != null && !party.getId().equals(id)){
             throw new GenericOutputException("Duplicate Number");
+        }
+    }
+
+    private void validateIntegrity(Long partyId){
+        try {
+            List<CandidateOutput> candidateOutputList = candidateClientService.getByParty(partyId);
+            if (candidateOutputList.isEmpty()){
+                throw new GenericOutputException("Could not change party with candidates linked");
+            }
+        } catch (FeignException e){
+            throw new GenericOutputException("Could not access Candidate service");
         }
     }
 
